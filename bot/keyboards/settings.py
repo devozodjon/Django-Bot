@@ -1,6 +1,6 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-setting_menu = ReplyKeyboardMarkup(
+setting_menu_uz = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="Ismni o'zgartirish"),
@@ -21,7 +21,7 @@ setting_menu = ReplyKeyboardMarkup(
     resize_keyboard=True
 )
 
-contact = ReplyKeyboardMarkup(
+contact_uz = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="🗣 Biz bilan aloqaga chiqing"),
@@ -30,5 +30,40 @@ contact = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="⬅️ Ortga")
         ]
-    ],resize_keyboard=True
+    ],
+    resize_keyboard=True
+)
+
+setting_menu_en = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Change Name"),
+            KeyboardButton(text="📱 Change Phone")
+        ],
+        [
+            KeyboardButton(text="🏙 Change City"),
+            KeyboardButton(text="🇺🇿 Change Language")
+        ],
+        [
+            KeyboardButton(text="ℹ️ Branch Info"),
+            KeyboardButton(text="📄 Terms & Conditions")
+        ],
+        [
+            KeyboardButton(text="⬅️ Back")
+        ]
+    ],
+    resize_keyboard=True
+)
+
+contact_en = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="🗣 Contact Us"),
+            KeyboardButton(text="💬 Feedback")
+        ],
+        [
+            KeyboardButton(text="⬅️ Back")
+        ]
+    ],
+    resize_keyboard=True
 )

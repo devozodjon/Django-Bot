@@ -1,6 +1,6 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-order_list = ReplyKeyboardMarkup(
+order_list_uz = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="🏃 Olib ketish"),
@@ -9,10 +9,11 @@ order_list = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="⬅️ Ortga")
         ]
-    ],resize_keyboard=True
+    ],
+    resize_keyboard=True
 )
 
-take_away = ReplyKeyboardMarkup(
+take_away_uz = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="⬅️ Ortga"),
@@ -22,10 +23,11 @@ take_away = ReplyKeyboardMarkup(
             KeyboardButton(text="🌐 Bu yerda buyurtma berish"),
             KeyboardButton(text="Filialni tanlang")
         ]
-    ],resize_keyboard=True
+    ],
+    resize_keyboard=True
 )
 
-delivery = ReplyKeyboardMarkup(
+delivery_uz = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="📍 Eng yaqin filialni aniqlash"),
@@ -34,5 +36,47 @@ delivery = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="⬅️ Ortga")
         ]
-    ],resize_keyboard=True
+    ],
+    resize_keyboard=True
+)
+
+
+order_list_en = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="🏃 Take Away"),
+            KeyboardButton(text="🚙 Delivery")
+        ],
+        [
+            KeyboardButton(text="⬅️ Back")
+        ]
+    ],
+    resize_keyboard=True
+)
+
+take_away_en = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="⬅️ Back"),
+            KeyboardButton(text="📍 Find Nearest Branch")
+        ],
+        [
+            KeyboardButton(text="🌐 Order Here"),
+            KeyboardButton(text="Select Branch")
+        ]
+    ],
+    resize_keyboard=True
+)
+
+delivery_en = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="📍 Find Nearest Branch"),
+            KeyboardButton(text="🗺 My Addresses")
+        ],
+        [
+            KeyboardButton(text="⬅️ Back")
+        ]
+    ],
+    resize_keyboard=True
 )

@@ -1,6 +1,16 @@
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
-languages = ReplyKeyboardMarkup(
+phone_number_uz = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="📱 Telefon raqamni ulash", request_contact=True)
+        ]
+    ],
+    resize_keyboard=True
+)
+
+
+languages_en = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="🇺🇿 Uzbek"),
@@ -10,10 +20,11 @@ languages = ReplyKeyboardMarkup(
     resize_keyboard=True
 )
 
-phone_number = ReplyKeyboardMarkup(
+phone_number_en = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="📱Share phone number",request_contact=True)
+            KeyboardButton(text="📱 Share phone number", request_contact=True)
         ]
-    ],resize_keyboard=True
+    ],
+    resize_keyboard=True
 )

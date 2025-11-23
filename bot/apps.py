@@ -5,6 +5,8 @@ from aiogram import Bot, Dispatcher
 from django.apps import AppConfig
 from django.conf import settings
 
+from bot.handlers import ordering
+
 logger = logging.getLogger(__name__)
 
 
@@ -23,3 +25,4 @@ class BotConfig(AppConfig):
 
             from bot.handlers import register
             BotConfig.dp.include_router(register.router)
+            BotConfig.dp.include_router(ordering.router)
