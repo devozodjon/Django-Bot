@@ -1,76 +1,75 @@
-import logging
-
 from aiogram import Router, F
-from aiogram.filters import CommandStart
-from aiogram.types import Message
-from asgiref.sync import sync_to_async
+from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, ReplyKeyboardRemove
 
-# from bot.models import UserImage
+from bot.keyboards.default import languages, phone_number
+from bot.keyboards.inline import main_menu, cities_uz
+from bot.state.register import UserState
+from bot.utils.db_commands.user import get_user, add_user
 
-logger = logging.getLogger(__name__)
 router = Router()
 
+@router.message(F.text == "/start")
+async def start_handler(message: Message, state: FSMContext):
+    user = await get_user(chat_id=message.chat.id)
+    if user:
+        await message.answer("Welcome 😊", reply_markup=main_menu)
+    else:
+        text = (
+            "Assalomu alaykum! Les Ailes yetkazib berish xizmatiga xush kelibsiz.\n"
+            "Tilni tanlang!\n\n"
+            "Hello! Welcome to Les Ailes delivery service.\n"
+            "Select language!"
+        )
+        await message.answer(text=text, reply_markup=languages)
+        await state.set_state(UserState.language)
 
-@router.message(CommandStart())
-async def cmd_start(message: Message):
-    await message.answer(
-        "👋 Hello! Bot is working! 🎉\n\n"
-        "📸 Send me an image and I'll save its file_id to the database.",
-        parse_mode=None  # Override the default parse mode
-    )
-#
-#
-# @router.message(F.photo)
-# async def handle_photo(message: Message):
-#     """Handle incoming photos"""
-#     try:
-#         photo = message.photo[-1]
-#
-#         logger.info(f"Received photo from user {message.from_user.id}")
-#
-#         # Save to database
-#         image = await sync_to_async(UserImage.objects.create)(
-#             user_id=message.from_user.id,
-#             username=message.from_user.username,
-#             file_id=photo.file_id,
-#             file_unique_id=photo.file_unique_id,
-#             caption=message.caption
-#         )
-#
-#         logger.info(f"Image saved with ID: {image.id}")
-#
-#         # Simple response without parse mode
-#         await message.answer(
-#             f"✅ Image saved!\n\n"
-#             f"ID: {image.id}\n"
-#             f"File ID: {photo.file_id}\n"
-#             f"Size: {photo.width}x{photo.height}",
-#             parse_mode=None
-#         )
-#
-#         # Send the image back
-#         await message.answer_photo(
-#             photo=photo.file_id,
-#             caption="Here's your image using the saved file_id!"
-#         )
-#
-#     except Exception as e:
-#         logger.error(f"Error: {e}", exc_info=True)
-#         await message.answer("❌ Error saving image", parse_mode=None)
-#
-#
-# @router.message(F.text)
-# async def echo_handler(message: Message):
-#     logger.info(f"Received: {message.text}")
-#     # Escape markdown special characters
-#     if message.text:
-#         # Replace markdown special chars to avoid parsing errors
-#         safe_text = message.text.replace('_', '\\_').replace('*', '\\*').replace('[', '\\[').replace('`', '\\`')
-#         await message.answer(f"Echo: {safe_text}")
-#     else:
-#         await message.answer("Echo: (empty)", parse_mode=None)
-#
-#
-# @router.message()
-# async def other_types_handler(message: Message):
-#     await message.answer("Please send me a photo or text message", parse_mode=None)
+@router.message(UserState.language)
+async def language_handler(message: Message, state: FSMContext):
+    await state.update_data(language=message.text)
+    await message.answer("To‘liq ismingizni kiriting:", reply_markup=ReplyKeyboardRemove())
+    await state.set_state(UserState.full_name)
+
+@router.message(UserState.full_name)
+async def full_name_handler(message: Message, state: FSMContext):
+    await state.update_data(full_name=message.text)
+    await message.answer("📱 Telefon raqamingizni yuboring:", reply_markup=phone_number)
+    await state.set_state(UserState.phone_number)
+
+@router.message(UserState.phone_number)
+async def phone_handler(message: Message, state: FSMContext):
+    # Contact orqali yuborsa yoki matn orqali yuborsa
+    if message.contact:
+        phone_number = message.contact.phone_number
+    else:
+        phone_number = message.text
+
+    await state.update_data(phone_number=phone_number)
+    await message.answer("Qaysi shaharda yashaysiz? Iltimos, shaharni tanlang:", reply_markup=cities_uz)
+    await state.set_state(UserState.city)
+
+@router.message(UserState.city)
+async def city_handler(message: Message, state: FSMContext):
+    await state.update_data(location=message.text)
+    data = await state.get_data()
+
+    new_user = await add_user({
+        "full_name": data.get("full_name"),
+        "phone_number": data.get("phone_number"),
+        "chat_id": message.chat.id,
+        "location": data.get("location"),
+    })
+
+    if new_user:
+        text = (
+            f"Ro‘yxatdan muvaffaqiyatli o‘tildi ✅\n\n"
+            f"Ism: {data.get('full_name')}\n"
+            f"Telefon: {data.get('phone_number')}\n"
+            f"Shahar: {data.get('location')}\n"
+        )
+    else:
+        text = "Ro‘yxatdan o‘tishda xatolik yuz berdi ❌"
+
+    await message.answer(text=text)
+    await message.answer(text="Bosh menyu", reply_markup=main_menu)
+    await state.clear()
