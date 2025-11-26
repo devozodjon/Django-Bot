@@ -3,9 +3,8 @@ import logging
 
 from aiogram import Bot, Dispatcher
 from django.apps import AppConfig
-from django.conf import settings
 
-from bot.handlers import ordering
+from core import config
 
 logger = logging.getLogger(__name__)
 
@@ -20,9 +19,18 @@ class BotConfig(AppConfig):
     def ready(self):
         """Initialize bot and dispatcher when Django starts"""
         if not BotConfig.bot:
-            BotConfig.bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
+            logger.info("Initializing bot...")
+
+            BotConfig.bot = Bot(token=config.TELEGRAM_BOT_TOKEN)
             BotConfig.dp = Dispatcher()
 
-            from bot.handlers import register
-            BotConfig.dp.include_router(register.router)
-            BotConfig.dp.include_router(ordering.router)
+            # Register middleware
+            from bot.middlewares.i18n import TranslationMiddleware
+            BotConfig.dp.message.middleware(TranslationMiddleware())
+            BotConfig.dp.callback_query.middleware(TranslationMiddleware())
+
+            # Register handlers
+            from bot.handlers import start
+            BotConfig.dp.include_router(start.router)
+
+            logger.info("Bot initialized successfully with i18n support")

@@ -19,15 +19,6 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = ["*"]
 
-from core import config
-
-TELEGRAM_BOT_TOKEN = config.TELEGRAM_BOT_TOKEN
-BASE_WEBHOOK_URL = config.BASE_WEBHOOK_URL
-WEBHOOK_SECRET = config.WEBHOOK_SECRET
-WEB_SERVER_PORT = config.WEB_SERVER_PORT
-WEB_SERVER_HOST = config.WEB_SERVER_HOST
-WEBHOOK_PATH = config.WEBHOOK_PATH
-
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -86,10 +77,18 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "en"
+LANGUAGE = (
+('en', "English",),
+('uz',"Uzbek")
+)
+
+
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
+
+LOCALE_PATHS = [BASE_DIR / 'locale']
 
 # Static files
 STATIC_URL = "static/"
