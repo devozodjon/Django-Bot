@@ -3,6 +3,7 @@ from django.conf import settings
 
 from bot.models.user import TelegramUser
 
+
 @sync_to_async
 def get_user_language(user_id):
     """Get user's preferred language from database"""

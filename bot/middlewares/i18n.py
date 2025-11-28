@@ -1,30 +1,23 @@
-from typing import Callable, Dict, Any, Awaitable
-
 from aiogram import BaseMiddleware
 from aiogram.types import Message, CallbackQuery
+from bot.utils.db_commands.translation import get_user_language
 from django.utils.translation import activate
 
-from bot.utils.db_commands.translation import get_user_language
-
-
 class TranslationMiddleware(BaseMiddleware):
-    """Middleware to automatically set user's language for each update"""
+    async def __call__(self, handler, event, data):
+        user_id = None
 
-    async def __call__(
-            self,
-            handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]],
-            event: Message | CallbackQuery,
-            data: Dict[str, Any]
-    ) -> Any:
-        # Get user_id from the event
-        user_id = event.from_user.id
+        if isinstance(event, Message) and event.from_user:
+            user_id = event.from_user.id
+        elif isinstance(event, CallbackQuery) and event.from_user:
+            user_id = event.from_user.id
 
-        # Activate user's language (await the async function)
-        language = await get_user_language(user_id)
-        activate(language)
+        if user_id:
+            language = await get_user_language(user_id)
+            activate(language)
+            data['user_language'] = language
+        else:
+            activate('uz')
+            data['user_language'] = 'uz'
 
-        # Add translation info to data
-        data['user_language'] = language
-
-        # Call the handler
         return await handler(event, data)

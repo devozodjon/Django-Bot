@@ -1,5 +1,7 @@
 from django.db import models
 
+from bot.models.base import City
+
 
 class TelegramUser(models.Model):
     LANGUAGE_CHOICES = [
@@ -17,6 +19,10 @@ class TelegramUser(models.Model):
         choices=LANGUAGE_CHOICES,
         default='en'
     )
+    city = models.ForeignKey(
+        City, on_delete=models.PROTECT, related_name='users',
+        null=True, blank=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -25,4 +31,3 @@ class TelegramUser(models.Model):
 
     def __str__(self):
         return f"{self.user_id} - {self.first_name or 'No name'}"
-

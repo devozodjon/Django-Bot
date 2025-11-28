@@ -3,6 +3,7 @@ from asgiref.sync import async_to_sync
 from aiogram.types import BufferedInputFile
 from django.contrib import admin
 from bot.apps import BotConfig
+from bot.models.base import City
 from bot.models.product import Product, Category
 from core import config
 
@@ -111,3 +112,9 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', 'created_at']
     list_filter = ['created_at']
     search_fields = ['title']
+
+@admin.register(City)
+class CityAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['name']

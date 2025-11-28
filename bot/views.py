@@ -1,12 +1,13 @@
 import json
 import logging
-
+import asyncio
 from aiogram.types import Update
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from bot.apps import BotConfig
+from core import config
 
 logger = logging.getLogger(__name__)
 
@@ -84,3 +85,24 @@ async def webhook_info_view(request):
 def health_check(request):
     """Health check endpoint"""
     return JsonResponse({'status': 'ok'})
+
+
+@csrf_exempt
+def set_webhook_sync(request):
+    async def set_webhook():
+        url = f"{config.BASE_WEBHOOK_URL}{config.WEBHOOK_PATH}"
+        await BotConfig.bot.set_webhook(url=url, drop_pending_updates=True)
+        info = await BotConfig.bot.get_webhook_info()
+        return {
+            'url': info.url,
+            'pending_update_count': info.pending_update_count
+        }
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        info = loop.run_until_complete(set_webhook())
+    finally:
+        loop.close()
+
+    return JsonResponse({'status': 'success', 'webhook_info': info})

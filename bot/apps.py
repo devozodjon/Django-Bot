@@ -1,9 +1,6 @@
-
 import logging
-
 from aiogram import Bot, Dispatcher
 from django.apps import AppConfig
-
 from core import config
 
 logger = logging.getLogger(__name__)
@@ -17,20 +14,23 @@ class BotConfig(AppConfig):
     dp: Dispatcher = None
 
     def ready(self):
-        """Initialize bot and dispatcher when Django starts"""
-        if not BotConfig.bot:
-            logger.info("Initializing bot...")
+        if BotConfig.bot is not None:
+            return
 
-            BotConfig.bot = Bot(token=config.TELEGRAM_BOT_TOKEN)
-            BotConfig.dp = Dispatcher()
+        logger.info("Initializing bot...")
 
-            # Register middleware
-            from bot.middlewares.i18n import TranslationMiddleware
-            BotConfig.dp.message.middleware(TranslationMiddleware())
-            BotConfig.dp.callback_query.middleware(TranslationMiddleware())
+        BotConfig.bot = Bot(token=config.TELEGRAM_BOT_TOKEN)
+        BotConfig.dp = Dispatcher()
 
-            # Register handlers
-            from bot.handlers import start
-            BotConfig.dp.include_router(start.router)
+        # CORRECT middleware registration
+        from bot.middlewares.i18n import TranslationMiddleware
+        BotConfig.dp.update.middleware(TranslationMiddleware())
 
-            logger.info("Bot initialized successfully with i18n support")
+        # Register handlers
+        from bot.handlers import start, menu, backs, ordering
+        BotConfig.dp.include_router(start.router)
+        BotConfig.dp.include_router(menu.router)
+        BotConfig.dp.include_router(backs.router)
+        BotConfig.dp.include_router(ordering.router)
+
+        logger.info("Bot initialized successfully")
