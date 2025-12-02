@@ -2,6 +2,7 @@ import json
 import logging
 import asyncio
 from aiogram.types import Update
+from asgiref.sync import async_to_sync
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -32,31 +33,25 @@ async def webhook(request):
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 
-async def set_webhook_view(request):
-    """Set webhook URL"""
-    from core import config
+@csrf_exempt
+def set_webhook_view(request):
+    from asgiref.sync import async_to_sync
 
     try:
-        webhook_url = f"{config.BASE_WEBHOOK_URL}{config.WEBHOOK_PATH}"
-        await BotConfig.bot.set_webhook(
-            url=webhook_url,
-            secret_token=config.WEBHOOK_SECRET,
+        url = f"{config.BASE_WEBHOOK_URL}{config.WEBHOOK_PATH}"
+        async_to_sync(BotConfig.bot.set_webhook)(
+            url=url,
             drop_pending_updates=True
         )
-
-        webhook_info = await BotConfig.bot.get_webhook_info()
-
+        info = async_to_sync(BotConfig.bot.get_webhook_info)()
         return JsonResponse({
             'status': 'success',
-            'message': f'Webhook set to: {webhook_url}',
             'webhook_info': {
-                'url': webhook_info.url,
-                'pending_update_count': webhook_info.pending_update_count
+                'url': info.url,
+                'pending_update_count': info.pending_update_count
             }
         })
-
     except Exception as e:
-        logger.error(f"Set webhook error: {e}", exc_info=True)
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 
